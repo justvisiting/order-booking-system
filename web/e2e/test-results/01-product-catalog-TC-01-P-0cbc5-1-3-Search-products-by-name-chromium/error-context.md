@@ -1,0 +1,45 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "Order System" [ref=e7] [cursor=pointer]:
+        - /url: /order
+      - generic [ref=e8]:
+        - link "Track Order" [ref=e9] [cursor=pointer]:
+          - /url: /order/track
+        - button [ref=e10]:
+          - img [ref=e11]
+  - main [ref=e13]:
+    - generic [ref=e14]:
+      - heading "Our Products" [level=1] [ref=e15]
+      - generic [ref=e16]:
+        - textbox "Search products..." [active] [ref=e19]: Milk
+        - generic [ref=e20]:
+          - button "All" [ref=e21]
+          - button "Beverages" [ref=e22]
+          - button "Dairy" [ref=e23]
+          - button "Fruits" [ref=e24]
+          - button "Snacks" [ref=e25]
+          - button "Vegetables" [ref=e26]
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - heading "Milk" [level=3] [ref=e31]
+            - generic [ref=e32]: Dairy
+          - paragraph [ref=e33]: Full cream milk
+          - generic [ref=e34]:
+            - generic [ref=e35]: ₹60
+            - generic [ref=e36]: per litre
+        - button "Add to Cart" [ref=e37]
+  - generic [ref=e39]:
+    - generic [ref=e40]:
+      - heading "Cart (0 items)" [level=2] [ref=e41]
+      - button [ref=e42]:
+        - img [ref=e43]
+    - generic [ref=e46]:
+      - img [ref=e47]
+      - heading "Your cart is empty" [level=3] [ref=e49]
+      - paragraph [ref=e50]: Add some products to get started.
+```
