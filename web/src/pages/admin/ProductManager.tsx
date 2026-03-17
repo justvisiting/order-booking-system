@@ -64,10 +64,10 @@ export function ProductManager() {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
-        category_id: data.category_id,
+        category_id: data.category_id ? parseInt(data.category_id, 10) : 0,
         unit: data.unit,
         is_active: data.active,
-      }),
+      } as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       setModalOpen(false)
@@ -83,10 +83,10 @@ export function ProductManager() {
         name: data.name,
         description: data.description,
         price: parseFloat(data.price),
-        category_id: data.category_id,
+        category_id: data.category_id ? parseInt(data.category_id, 10) : 0,
         unit: data.unit,
         is_active: data.active,
-      }),
+      } as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] })
       setModalOpen(false)
@@ -277,7 +277,7 @@ export function ProductManager() {
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
-              checked={form.is_active}
+              checked={form.active}
               onChange={(e) =>
                 setForm((f) => ({ ...f, active: e.target.checked }))
               }

@@ -77,6 +77,7 @@ class ApiClient {
           ? `${order.delivery_address.address}, ${order.delivery_address.city}, ${order.delivery_address.state} - ${order.delivery_address.pincode}`
           : '',
       },
+      delivery_address: order.delivery_address,
       items: order.items.map((item) => ({
         product_id: typeof item.product_id === 'string' ? parseInt(item.product_id, 10) : item.product_id,
         quantity: item.quantity,

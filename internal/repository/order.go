@@ -55,15 +55,20 @@ func (r *orderRepo) GetNextOrderNumber(ctx context.Context, tx *sqlx.Tx) (string
 }
 
 func (r *orderRepo) Create(ctx context.Context, tx *sqlx.Tx, order *model.Order) (int64, error) {
-	query := `INSERT INTO orders (order_number, customer_id, status, total_amount, notes) VALUES (?, ?, ?, ?, ?)`
+	query := `INSERT INTO orders (order_number, customer_id, status, total_amount, notes, delivery_address) VALUES (?, ?, ?, ?, ?, ?)`
+	var deliveryJSON interface{}
+	if order.DeliveryAddress != nil {
+		v, _ := order.DeliveryAddress.Value()
+		deliveryJSON = v
+	}
 	var res interface {
 		LastInsertId() (int64, error)
 	}
 	var err error
 	if tx != nil {
-		res, err = tx.ExecContext(ctx, query, order.OrderNumber, order.CustomerID, order.Status, order.TotalAmount, order.Notes)
+		res, err = tx.ExecContext(ctx, query, order.OrderNumber, order.CustomerID, order.Status, order.TotalAmount, order.Notes, deliveryJSON)
 	} else {
-		res, err = r.db.ExecContext(ctx, query, order.OrderNumber, order.CustomerID, order.Status, order.TotalAmount, order.Notes)
+		res, err = r.db.ExecContext(ctx, query, order.OrderNumber, order.CustomerID, order.Status, order.TotalAmount, order.Notes, deliveryJSON)
 	}
 	if err != nil {
 		return 0, err
@@ -101,7 +106,7 @@ func (r *orderRepo) CreateStatusLog(ctx context.Context, tx *sqlx.Tx, log *model
 
 func (r *orderRepo) GetByID(ctx context.Context, id int64) (*model.Order, error) {
 	var order model.Order
-	query := `SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.created_at, o.updated_at,
+	query := `SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.delivery_address, o.created_at, o.updated_at,
 		c.name AS customer_name, c.phone AS customer_phone
 		FROM orders o
 		JOIN customers c ON c.id = o.customer_id
@@ -122,7 +127,7 @@ func (r *orderRepo) GetItemsByOrderID(ctx context.Context, orderID int64) ([]mod
 
 func (r *orderRepo) GetByIDAndPhone(ctx context.Context, id int64, phone string) (*model.Order, error) {
 	var order model.Order
-	query := `SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.created_at, o.updated_at,
+	query := `SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.delivery_address, o.created_at, o.updated_at,
 		c.name AS customer_name, c.phone AS customer_phone
 		FROM orders o
 		JOIN customers c ON c.id = o.customer_id
@@ -187,7 +192,7 @@ func (r *orderRepo) ListFiltered(ctx context.Context, filter model.OrderFilter) 
 
 	offset := (filter.Page - 1) * filter.PerPage
 	selectArgs := append(args, filter.PerPage, offset)
-	selectQuery := fmt.Sprintf(`SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.created_at, o.updated_at,
+	selectQuery := fmt.Sprintf(`SELECT o.id, o.order_number, o.customer_id, o.status, o.total_amount, o.notes, o.delivery_address, o.created_at, o.updated_at,
 		c.name AS customer_name, c.phone AS customer_phone
 		FROM orders o
 		JOIN customers c ON c.id = o.customer_id

@@ -3,6 +3,8 @@ import { Page, expect } from '@playwright/test'
 export const BASE_URL = 'http://localhost:3000'
 export const API_URL = 'http://localhost:8090'
 
+export const SCREENSHOT_DIR = 'test-results/screenshots'
+
 export const testCustomer = {
   name: 'Test Customer',
   phone: '9876543210',
@@ -28,12 +30,10 @@ export const staffCredentials = {
 export async function addProductToCart(page: Page, productName: string) {
   const card = page.locator('.bg-white.rounded-xl').filter({ hasText: productName })
   await card.getByRole('button', { name: 'Add to Cart' }).click()
-  // Wait for toast
   await page.waitForTimeout(500)
 }
 
 export async function openCart(page: Page) {
-  // Click cart icon in header
   await page.locator('header button').last().click()
   await expect(page.getByText('Cart (')).toBeVisible()
 }
@@ -63,6 +63,9 @@ export async function loginAsStaff(page: Page) {
   await expect(page.getByRole('link', { name: 'Orders' })).toBeVisible({ timeout: 10000 })
 }
 
-export async function screenshotStep(page: Page, name: string) {
-  await page.screenshot({ path: `e2e/screenshots/${name}.png`, fullPage: true })
+export async function screenshot(page: Page, testId: string, step: number, label: string) {
+  await page.screenshot({
+    path: `${SCREENSHOT_DIR}/${testId}-step-${step}-${label}.png`,
+    fullPage: true,
+  })
 }

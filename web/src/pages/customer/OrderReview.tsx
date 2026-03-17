@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation, useNavigate, Navigate } from 'react-router-dom'
 import { useCartStore } from '../../stores/cartStore'
 import { useCreateOrder } from '../../hooks/useOrders'
@@ -19,16 +20,18 @@ export function OrderReview() {
   const getTotal = useCartStore((s) => s.getTotal)
   const clearCart = useCartStore((s) => s.clearCart)
   const createOrder = useCreateOrder()
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const state = location.state as LocationState | undefined
 
-  if (!state || items.length === 0) {
+  if (!state || (items.length === 0 && !isSubmitting)) {
     return <Navigate to="/order" replace />
   }
 
   const { customer, address, notes } = state
 
   const handleSubmit = () => {
+    setIsSubmitting(true)
     createOrder.mutate(
       {
         customer_name: customer.name,

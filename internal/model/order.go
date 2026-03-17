@@ -1,6 +1,47 @@
 package model
 
-import "time"
+import (
+	"database/sql/driver"
+	"encoding/json"
+	"time"
+)
+
+// DeliveryAddress represents a structured delivery address.
+type DeliveryAddress struct {
+	Address string `json:"address"`
+	City    string `json:"city"`
+	State   string `json:"state"`
+	Pincode string `json:"pincode"`
+}
+
+// Scan implements sql.Scanner for reading JSON from MySQL.
+func (da *DeliveryAddress) Scan(value interface{}) error {
+	if value == nil {
+		return nil
+	}
+	var b []byte
+	switch v := value.(type) {
+	case []byte:
+		b = v
+	case string:
+		b = []byte(v)
+	default:
+		return nil
+	}
+	return json.Unmarshal(b, da)
+}
+
+// Value implements driver.Valuer for writing JSON to MySQL.
+func (da DeliveryAddress) Value() (driver.Value, error) {
+	if da.Address == "" && da.City == "" && da.State == "" && da.Pincode == "" {
+		return nil, nil
+	}
+	b, err := json.Marshal(da)
+	if err != nil {
+		return nil, err
+	}
+	return string(b), nil
+}
 
 type OrderStatus string
 
@@ -40,8 +81,9 @@ type Order struct {
 	CustomerID  int64       `db:"customer_id" json:"customer_id"`
 	Status      OrderStatus `db:"status" json:"status"`
 	TotalAmount float64     `db:"total_amount" json:"total_amount"`
-	Notes       string      `db:"notes" json:"notes,omitempty"`
-	CreatedAt   time.Time   `db:"created_at" json:"created_at"`
+	Notes           string           `db:"notes" json:"notes,omitempty"`
+	DeliveryAddress *DeliveryAddress `db:"delivery_address" json:"delivery_address,omitempty"`
+	CreatedAt       time.Time        `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time   `db:"updated_at" json:"updated_at"`
 
 	// Joined fields
@@ -71,9 +113,10 @@ type OrderStatusLog struct {
 }
 
 type PlaceOrderRequest struct {
-	Customer CustomerInput        `json:"customer"`
-	Items    []PlaceOrderItemInput `json:"items"`
-	Notes    string               `json:"notes,omitempty"`
+	Customer        CustomerInput        `json:"customer"`
+	Items           []PlaceOrderItemInput `json:"items"`
+	Notes           string               `json:"notes,omitempty"`
+	DeliveryAddress *DeliveryAddress     `json:"delivery_address,omitempty"`
 }
 
 type PlaceOrderItemInput struct {

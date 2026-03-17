@@ -125,11 +125,12 @@ func (s *orderService) PlaceOrder(ctx context.Context, req model.PlaceOrderReque
 
 	// Create order
 	order := &model.Order{
-		OrderNumber: orderNumber,
-		CustomerID:  customerID,
-		Status:      model.OrderStatusPending,
-		TotalAmount: totalAmount,
-		Notes:       req.Notes,
+		OrderNumber:     orderNumber,
+		CustomerID:      customerID,
+		Status:          model.OrderStatusPending,
+		TotalAmount:     totalAmount,
+		Notes:           req.Notes,
+		DeliveryAddress: req.DeliveryAddress,
 	}
 	orderID, err := s.orderRepo.Create(ctx, tx, order)
 	if err != nil {

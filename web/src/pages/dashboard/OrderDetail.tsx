@@ -123,18 +123,20 @@ export function OrderDetail() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
-            Delivery Address
-          </h2>
-          <div className="text-sm text-gray-600">
-            <p>{order.delivery_address.address}</p>
-            <p>
-              {order.delivery_address.city}, {order.delivery_address.state} -{' '}
-              {order.delivery_address.pincode}
-            </p>
+        {order.delivery_address && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+              Delivery Address
+            </h2>
+            <div className="text-sm text-gray-600">
+              <p>{order.delivery_address.address}</p>
+              <p>
+                {order.delivery_address.city}, {order.delivery_address.state} -{' '}
+                {order.delivery_address.pincode}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">

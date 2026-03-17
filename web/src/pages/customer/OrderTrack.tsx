@@ -82,22 +82,24 @@ export function OrderTrack() {
                 <Badge status={order.status} />
               </div>
               <div className="border-t pt-3">
-                <div className="space-y-1">
-                  {order.items.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="flex justify-between text-sm"
-                    >
-                      <span className="text-gray-600">
-                        {item.product_name} x {item.quantity}
-                      </span>
-                      <span className="text-gray-900">
-                        {formatCurrency(item.total_price)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-t mt-2 pt-2 flex justify-between font-semibold">
+                {order.items && order.items.length > 0 && (
+                  <div className="space-y-1">
+                    {order.items.map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex justify-between text-sm"
+                      >
+                        <span className="text-gray-600">
+                          {item.product_name} x {item.quantity}
+                        </span>
+                        <span className="text-gray-900">
+                          {formatCurrency(item.total_price || (item as any).subtotal || item.unit_price * item.quantity)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className={`${order.items && order.items.length > 0 ? 'border-t mt-2 pt-2' : ''} flex justify-between font-semibold`}>
                   <span>Total</span>
                   <span>{formatCurrency(order.total_amount)}</span>
                 </div>
