@@ -26,7 +26,7 @@ test.describe('Admin Operations', () => {
 
     // Navigate to products
     await page.getByRole('link', { name: 'Products' }).click()
-    await expect(page.getByText('Products')).toBeVisible()
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 })
     await screenshot(page, 'E2E-016', 1, 'product-list')
 
     // Click Add Product
@@ -70,7 +70,7 @@ test.describe('Admin Operations', () => {
 
     // Navigate to products
     await page.getByRole('link', { name: 'Products' }).click()
-    await expect(page.getByText('Products')).toBeVisible()
+    await expect(page.locator('table').first()).toBeVisible({ timeout: 10000 })
 
     // Create a product to deactivate
     await page.getByRole('button', { name: 'Add Product' }).click()
