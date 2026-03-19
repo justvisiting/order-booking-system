@@ -39,6 +39,7 @@ func (h *OrderHandler) PlaceOrder(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusUnprocessableEntity, err.Error())
 			return
 		}
+		logError(r.Context(), "failed to place order", err)
 		writeError(w, http.StatusInternalServerError, "failed to place order")
 		return
 	}
@@ -66,6 +67,7 @@ func (h *OrderHandler) GetOrderStatus(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "order not found")
 			return
 		}
+		logError(r.Context(), "failed to get order", err, "order_id", id)
 		writeError(w, http.StatusInternalServerError, "failed to get order")
 		return
 	}
@@ -86,6 +88,7 @@ func (h *OrderHandler) CustomerOrders(w http.ResponseWriter, r *http.Request) {
 
 	orders, total, err := h.svc.ListByCustomerPhone(r.Context(), phone, page, perPage)
 	if err != nil {
+		logError(r.Context(), "failed to list customer orders", err, "phone", phone)
 		writeError(w, http.StatusInternalServerError, "failed to list orders")
 		return
 	}
@@ -117,6 +120,7 @@ func (h *OrderHandler) DashboardListOrders(w http.ResponseWriter, r *http.Reques
 
 	orders, total, err := h.svc.ListFiltered(r.Context(), filter)
 	if err != nil {
+		logError(r.Context(), "failed to list orders", err)
 		writeError(w, http.StatusInternalServerError, "failed to list orders")
 		return
 	}
@@ -147,6 +151,7 @@ func (h *OrderHandler) DashboardGetOrder(w http.ResponseWriter, r *http.Request)
 			writeError(w, http.StatusNotFound, "order not found")
 			return
 		}
+		logError(r.Context(), "failed to get order", err, "order_id", id)
 		writeError(w, http.StatusInternalServerError, "failed to get order")
 		return
 	}
@@ -185,6 +190,7 @@ func (h *OrderHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusUnprocessableEntity, err.Error())
 			return
 		}
+		logError(r.Context(), "failed to update order status", err, "order_id", id)
 		writeError(w, http.StatusInternalServerError, "failed to update status")
 		return
 	}

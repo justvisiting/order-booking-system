@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
 	"strings"
 
@@ -32,18 +33,31 @@ func Auth(authSvc service.AuthService) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			authHeader := r.Header.Get("Authorization")
 			if authHeader == "" {
+				slog.Warn("missing authorization header",
+					"path", r.URL.Path,
+					"request_id", GetRequestID(r.Context()),
+				)
 				writeJSONError(w, http.StatusUnauthorized, "missing authorization header")
 				return
 			}
 
 			parts := strings.SplitN(authHeader, " ", 2)
 			if len(parts) != 2 || !strings.EqualFold(parts[0], "bearer") {
+				slog.Warn("invalid authorization header format",
+					"path", r.URL.Path,
+					"request_id", GetRequestID(r.Context()),
+				)
 				writeJSONError(w, http.StatusUnauthorized, "invalid authorization header format")
 				return
 			}
 
 			claims, err := authSvc.ValidateToken(parts[1])
 			if err != nil {
+				slog.Warn("invalid or expired token",
+					"error", err,
+					"path", r.URL.Path,
+					"request_id", GetRequestID(r.Context()),
+				)
 				writeJSONError(w, http.StatusUnauthorized, "invalid or expired token")
 				return
 			}
@@ -67,6 +81,11 @@ func RequireRole(roles ...model.UserRole) func(http.Handler) http.Handler {
 					return
 				}
 			}
+			slog.Warn("insufficient permissions",
+				"role", role,
+				"path", r.URL.Path,
+				"request_id", GetRequestID(r.Context()),
+			)
 			writeJSONError(w, http.StatusForbidden, "insufficient permissions")
 		})
 	}

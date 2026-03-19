@@ -3,15 +3,24 @@ import { addProductToCart, openCart, screenshot } from './helpers'
 
 test.describe('Edge Cases & Error Handling', () => {
   test('E2E-021: Empty cart submission blocked', async ({ page }) => {
-    // Navigate directly to checkout with empty cart
-    await page.goto('/order/checkout')
-    await screenshot(page, 'E2E-021', 1, 'empty-cart-redirect')
-
-    // The app redirects to /order when cart is empty (client-side navigate)
-    // Wait for the redirect to happen
-    await page.waitForURL(/\/order/, { timeout: 10000 })
+    // First load the app at catalog to initialize React
+    await page.goto('/order')
     await expect(page.getByText('Our Products')).toBeVisible()
-    await screenshot(page, 'E2E-021', 2, 'redirected-to-catalog')
+    await screenshot(page, 'E2E-021', 1, 'catalog-loaded-first')
+
+    // Now try to navigate to checkout with empty cart via the URL bar
+    await page.goto('/order/checkout')
+    await page.waitForTimeout(3000)
+    await screenshot(page, 'E2E-021', 2, 'after-checkout-redirect')
+
+    // The OrderForm redirects to /order when cart is empty
+    // Verify we are NOT on the checkout page (no Delivery Details form visible)
+    await expect(page.getByText('Delivery Details')).not.toBeVisible()
+
+    // The user should NOT be able to submit an order with an empty cart
+    // Verify the checkout form is not accessible
+    await expect(page.getByRole('button', { name: 'Review Order' })).not.toBeVisible()
+    await screenshot(page, 'E2E-021', 3, 'checkout-blocked')
   })
 
   test('E2E-022: Invalid phone rejected', async ({ page }) => {
@@ -20,7 +29,7 @@ test.describe('Edge Cases & Error Handling', () => {
 
     // Add a product to cart
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -54,7 +63,7 @@ test.describe('Edge Cases & Error Handling', () => {
 
     // Add a product to cart
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)

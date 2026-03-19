@@ -34,6 +34,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusForbidden, "account is inactive")
 			return
 		}
+		logError(r.Context(), "login failed", err)
 		writeError(w, http.StatusInternalServerError, "login failed")
 		return
 	}

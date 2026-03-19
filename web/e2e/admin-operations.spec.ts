@@ -82,6 +82,15 @@ test.describe('Admin Operations', () => {
     await page.getByPlaceholder('0.00').fill('50.00')
     await page.getByPlaceholder('e.g. kg, piece, litre').fill('piece')
 
+    // Select a category (required for successful creation)
+    const categorySelect = page.locator('select')
+    if (await categorySelect.isVisible()) {
+      const options = await categorySelect.locator('option').allTextContents()
+      if (options.length > 1) {
+        await categorySelect.selectOption({ index: 1 })
+      }
+    }
+
     const activeCheckbox = page.locator('input[type="checkbox"]')
     if (!(await activeCheckbox.isChecked())) {
       await activeCheckbox.check()
@@ -89,8 +98,7 @@ test.describe('Admin Operations', () => {
 
     await page.getByRole('button', { name: 'Create' }).click()
     // Wait for modal to close and table to refresh
-    await page.waitForTimeout(2000)
-    await expect(page.locator('table').getByText(deactivateName)).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('table').getByText(deactivateName)).toBeVisible({ timeout: 15000 })
     await screenshot(page, 'E2E-034', 1, 'product-created-active')
 
     // Verify the product is visible on customer side

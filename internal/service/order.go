@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log/slog"
 
 	"order-system/internal/model"
 	"order-system/internal/repository"
@@ -164,6 +165,14 @@ func (s *orderService) PlaceOrder(ctx context.Context, req model.PlaceOrderReque
 	order.CustomerName = req.Customer.Name
 	order.CustomerPhone = req.Customer.Phone
 
+	slog.Info("order placed",
+		"order_id", order.ID,
+		"order_number", order.OrderNumber,
+		"customer_phone", req.Customer.Phone,
+		"total_amount", totalAmount,
+		"items_count", len(orderItems),
+	)
+
 	// Broadcast to WebSocket
 	if s.hub != nil {
 		s.hub.Broadcast(ws.Message{
@@ -263,6 +272,12 @@ func (s *orderService) UpdateStatus(ctx context.Context, orderID int64, req mode
 	order.Status = req.Status
 	items, _ := s.orderRepo.GetItemsByOrderID(ctx, orderID)
 	order.Items = items
+
+	slog.Info("order status updated",
+		"order_id", orderID,
+		"new_status", req.Status,
+		"changed_by", userID,
+	)
 
 	// Broadcast status change
 	if s.hub != nil {

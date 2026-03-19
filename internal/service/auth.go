@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -65,6 +66,8 @@ func (s *authService) Login(ctx context.Context, req model.LoginRequest) (*model
 		return nil, fmt.Errorf("generating token: %w", err)
 	}
 
+	slog.Info("user logged in", "username", user.Username, "role", user.Role)
+
 	return &model.LoginResponse{Token: token, User: *user}, nil
 }
 
@@ -100,6 +103,7 @@ func (s *authService) CreateUser(ctx context.Context, req model.CreateUserReques
 	}
 
 	user.ID = id
+	slog.Info("user created", "user_id", id, "username", user.Username, "role", user.Role)
 	return user, nil
 }
 

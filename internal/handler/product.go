@@ -20,6 +20,7 @@ func NewProductHandler(svc service.ProductService) *ProductHandler {
 func (h *ProductHandler) List(w http.ResponseWriter, r *http.Request) {
 	products, err := h.svc.ListActive(r.Context())
 	if err != nil {
+		logError(r.Context(), "failed to list products", err)
 		writeError(w, http.StatusInternalServerError, "failed to list products")
 		return
 	}
@@ -42,6 +43,7 @@ func (h *ProductHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "product not found")
 			return
 		}
+		logError(r.Context(), "failed to get product", err, "product_id", id)
 		writeError(w, http.StatusInternalServerError, "failed to get product")
 		return
 	}

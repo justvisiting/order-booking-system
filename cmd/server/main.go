@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -28,19 +28,32 @@ func main() {
 
 	cfg, err := config.Load(cfgPath)
 	if err != nil {
-		log.Fatalf("loading config: %v", err)
+		slog.Error("failed to load config", "error", err)
+		os.Exit(1)
 	}
+
+	// Initialize structured logger
+	logLevel := cfg.Log.SlogLevel()
+	logger := slog.New(slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: logLevel,
+	}))
+	slog.SetDefault(logger)
+
+	slog.Info("config loaded", "log_level", cfg.Log.Level)
 
 	// Connect to MySQL
 	db, err := sqlx.Connect("mysql", cfg.Database.DSN())
 	if err != nil {
-		log.Fatalf("connecting to database: %v", err)
+		slog.Error("failed to connect to database", "error", err)
+		os.Exit(1)
 	}
 	defer db.Close()
 
 	db.SetMaxOpenConns(cfg.Database.MaxOpenConns)
 	db.SetMaxIdleConns(cfg.Database.MaxIdleConns)
 	db.SetConnMaxLifetime(cfg.Database.ConnMaxLifetime)
+
+	slog.Info("database connected", "host", cfg.Database.Host, "name", cfg.Database.Name)
 
 	// Repositories
 	productRepo := repository.NewProductRepository(db)
@@ -65,6 +78,7 @@ func main() {
 
 	// Router
 	r := chi.NewRouter()
+	r.Use(middleware.RequestID)
 	r.Use(middleware.Logging)
 	r.Use(middleware.CORS(cfg.CORS))
 
@@ -121,8 +135,9 @@ func main() {
 		IdleTimeout:  60 * time.Second,
 	}
 
-	log.Printf("Server starting on %s", addr)
+	slog.Info("server starting", "addr", addr)
 	if err := srv.ListenAndServe(); err != nil {
-		log.Fatalf("server error: %v", err)
+		slog.Error("server error", "error", err)
+		os.Exit(1)
 	}
 }

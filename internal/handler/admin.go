@@ -12,15 +12,15 @@ import (
 )
 
 type AdminHandler struct {
-	productSvc  service.ProductService
-	authSvc     service.AuthService
+	productSvc   service.ProductService
+	authSvc      service.AuthService
 	customerRepo repository.CustomerRepository
 }
 
 func NewAdminHandler(productSvc service.ProductService, authSvc service.AuthService, customerRepo repository.CustomerRepository) *AdminHandler {
 	return &AdminHandler{
-		productSvc:  productSvc,
-		authSvc:     authSvc,
+		productSvc:   productSvc,
+		authSvc:      authSvc,
 		customerRepo: customerRepo,
 	}
 }
@@ -39,6 +39,7 @@ func (h *AdminHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "category not found")
 			return
 		}
+		logError(r.Context(), "failed to create product", err)
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -70,6 +71,7 @@ func (h *AdminHandler) UpdateProduct(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, "category not found")
 			return
 		}
+		logError(r.Context(), "failed to update product", err, "product_id", id)
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -90,6 +92,7 @@ func (h *AdminHandler) DeleteProduct(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "product not found")
 			return
 		}
+		logError(r.Context(), "failed to delete product", err, "product_id", id)
 		writeError(w, http.StatusInternalServerError, "failed to delete product")
 		return
 	}
@@ -107,6 +110,7 @@ func (h *AdminHandler) CreateCategory(w http.ResponseWriter, r *http.Request) {
 
 	cat, err := h.productSvc.CreateCategory(r.Context(), req)
 	if err != nil {
+		logError(r.Context(), "failed to create category", err)
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -134,6 +138,7 @@ func (h *AdminHandler) UpdateCategory(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusNotFound, "category not found")
 			return
 		}
+		logError(r.Context(), "failed to update category", err, "category_id", id)
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
@@ -148,6 +153,7 @@ func (h *AdminHandler) ListCustomers(w http.ResponseWriter, r *http.Request) {
 
 	customers, total, err := h.customerRepo.List(r.Context(), page, perPage)
 	if err != nil {
+		logError(r.Context(), "failed to list customers", err)
 		writeError(w, http.StatusInternalServerError, "failed to list customers")
 		return
 	}
@@ -182,6 +188,7 @@ func (h *AdminHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			writeError(w, http.StatusBadRequest, err.Error())
 			return
 		}
+		logError(r.Context(), "failed to create user", err)
 		writeError(w, http.StatusInternalServerError, err.Error())
 		return
 	}

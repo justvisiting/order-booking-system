@@ -53,39 +53,36 @@ export function ProductCatalog() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Our Products</h1>
+      <h1 className="text-2xl font-bold text-neutral-900 mb-6">Our Products</h1>
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
         <div className="flex-1">
           <Input
             placeholder="Search products..."
+            aria-label="Search products"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button
+          <Button
+            variant={!selectedCategory ? 'primary' : 'secondary'}
+            size="sm"
             onClick={() => setSelectedCategory('')}
-            className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-              !selectedCategory
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+            aria-pressed={!selectedCategory}
           >
             All
-          </button>
+          </Button>
           {categories.map((cat) => (
-            <button
+            <Button
               key={cat}
+              variant={selectedCategory === cat ? 'primary' : 'secondary'}
+              size="sm"
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                selectedCategory === cat
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
+              aria-pressed={selectedCategory === cat}
             >
               {cat}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -100,21 +97,21 @@ export function ProductCatalog() {
           {filtered.map((product) => (
             <div
               key={product.id}
-              className="bg-white rounded-xl shadow-sm border border-gray-200 p-4 flex flex-col"
+              className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4 flex flex-col"
             >
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-2">
-                  <h3 className="font-semibold text-gray-900">{product.name}</h3>
-                  <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                  <h3 className="font-semibold text-neutral-900">{product.name}</h3>
+                  <span className="text-xs bg-neutral-100 text-neutral-600 px-2 py-1 rounded-full">
                     {product.category_name || 'Uncategorized'}
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mb-3">{product.description}</p>
+                <p className="text-sm text-neutral-500 mb-3">{product.description}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-lg font-bold text-gray-900">
+                  <span className="text-lg font-bold text-neutral-900">
                     {formatCurrency(product.price)}
                   </span>
-                  <span className="text-xs text-gray-500">per {product.unit}</span>
+                  <span className="text-xs text-neutral-500">per {product.unit}</span>
                 </div>
               </div>
               <Button

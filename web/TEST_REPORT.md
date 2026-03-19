@@ -1,351 +1,206 @@
-# E2E Test Report — Order Booking System
+# E2E Test Report
 
 **Date:** 2026-03-17
-**Tool:** Playwright (Chromium, real browser)
-**Environment:** Frontend localhost:3000 | Backend localhost:8090 | MySQL orderdb
-**Mocks:** ZERO — all tests hit real API and real database
-**Total:** 26 tests | **26 PASS** | **0 FAIL**
-**Duration:** ~31 seconds
+**Browser:** Chromium (Playwright)
+**Environment:** Frontend http://localhost:3000 | Backend API http://localhost:8090 | DB MySQL orderdb
+**Total Tests:** 16 | **Passed:** 16 | **Failed:** 0
+**Duration:** ~27s
 
 ---
 
-## TC-01: Product Catalog (4 tests)
+## Phase 1 - Customer Happy Path
 
-### TC-01.1: Display product catalog with all categories
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Navigate to /order |
-| **Expected** | Product cards rendered with name, price. Category filter buttons visible. |
-| **Actual** | 15 products displayed across 5 categories. All cards show name + price. |
-| **Screenshot** | `e2e/screenshots/01-01-product-catalog-loaded.png` |
+### E2E-001: Browse products, see categories, filter by category
+- **Status:** PASS
+- **Input:** Navigate to /order, click category filter buttons
+- **Expected:** Products displayed, category buttons visible, filtering works
+- **Actual:** Products loaded, categories shown as filter buttons. Clicking a category filters products (active button highlighted blue). Clicking "All" resets the filter.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-001-step-1-catalog-loaded.png`
+  - `test-results/screenshots/E2E-001-step-2-categories-visible.png`
+  - `test-results/screenshots/E2E-001-step-3-filtered-by-category.png`
+  - `test-results/screenshots/E2E-001-step-4-filter-reset.png`
 
-### TC-01.2: Filter products by category
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Click "Fruits" category filter |
-| **Expected** | Only fruit products shown |
-| **Actual** | Catalog filtered to fruits only. Other categories hidden. |
-| **Screenshot** | `e2e/screenshots/01-02-filtered-by-fruits.png` |
+### E2E-002: Search products by name
+- **Status:** PASS
+- **Input:** Type partial product name in search, then type non-existent term, then clear
+- **Expected:** Search filters products, no results message for invalid search, clearing restores all
+- **Actual:** Typing partial name filters to matching products. Typing "xyznonexistent999" shows "No products found". Clearing search restores all products.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-002-step-1-search-entered.png`
+  - `test-results/screenshots/E2E-002-step-2-no-results.png`
+  - `test-results/screenshots/E2E-002-step-3-search-cleared.png`
 
-### TC-01.3: Search products by name
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Type "Milk" in search box |
-| **Expected** | Only products matching "Milk" shown |
-| **Actual** | Search filters correctly. Milk product visible. |
-| **Screenshot** | `e2e/screenshots/01-03-search-milk.png` |
+### E2E-003: Add to cart, adjust quantities
+- **Status:** PASS
+- **Input:** Add first product to cart, open cart sidebar, click +/- buttons
+- **Expected:** Product added to cart, quantity adjustable
+- **Actual:** Product added with success toast. Cart sidebar shows item. Plus button increases quantity, minus button decreases it.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-003-step-1-product-added.png`
+  - `test-results/screenshots/E2E-003-step-2-cart-opened.png`
+  - `test-results/screenshots/E2E-003-step-3-quantity-increased.png`
+  - `test-results/screenshots/E2E-003-step-4-quantity-decreased.png`
 
-### TC-01.4: Add product to cart
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Click "Add to Cart" on first product |
-| **Expected** | Cart badge increments, product added |
-| **Actual** | Cart badge shows item count. Product added successfully. |
-| **Screenshot** | `e2e/screenshots/01-04-product-added-to-cart.png` |
+### E2E-004: Fill order form with valid delivery info
+- **Status:** PASS
+- **Input:** Name: "Test Customer", Phone: "9876543210", Address: "42 MG Road, Koramangala", City: "Bangalore", State: "Karnataka", Pincode: "560034"
+- **Expected:** All fields accept input, values retained
+- **Actual:** All fields filled successfully. Values verified via assertions on input values.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-004-step-1-checkout-form.png`
+  - `test-results/screenshots/E2E-004-step-2-form-filled.png`
 
----
+### E2E-005: Review and submit order
+- **Status:** PASS
+- **Input:** Complete flow: add product, checkout, fill form, review, place order
+- **Expected:** Review page shows customer info, items, total. Order submission succeeds.
+- **Actual:** Review page displays customer name, phone, address, product name, and total. Clicking "Place Order" submits and shows confirmation.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-005-step-1-review-page.png`
+  - `test-results/screenshots/E2E-005-step-2-review-verified.png`
+  - `test-results/screenshots/E2E-005-step-3-order-placed.png`
 
-## TC-02: Cart Management (5 tests)
-
-### TC-02.1: Open cart sidebar with items
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Add product, click cart icon |
-| **Expected** | Cart sidebar opens showing added items |
-| **Actual** | Sidebar opens with correct item, quantity, and subtotal |
-| **Screenshot** | `e2e/screenshots/02-01-cart-sidebar-open.png` |
-
-### TC-02.2: Increase product quantity in cart
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Click "+" button on cart item |
-| **Expected** | Quantity increments, total updates |
-| **Actual** | Quantity increased. Total recalculated correctly. |
-| **Screenshot** | `e2e/screenshots/02-02-quantity-increased.png` |
-
-### TC-02.3: Decrease product quantity in cart
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Click "−" button on cart item |
-| **Expected** | Quantity decrements, total updates |
-| **Actual** | Quantity decreased. Total recalculated correctly. |
-| **Screenshot** | `e2e/screenshots/02-03-quantity-decreased.png` |
-
-### TC-02.4: Remove item from cart
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Remove all items from cart |
-| **Expected** | Cart shows empty state |
-| **Actual** | "Your cart is empty" message displayed |
-| **Screenshot** | `e2e/screenshots/02-04-cart-empty-after-remove.png` |
-
-### TC-02.5: Proceed to checkout from cart
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Add item, open cart, click checkout |
-| **Expected** | Navigates to checkout/order form page |
-| **Actual** | Checkout form rendered with delivery fields |
-| **Screenshot** | `e2e/screenshots/02-05-checkout-page.png` |
+### E2E-006: See confirmation with order number
+- **Status:** PASS
+- **Input:** Complete order flow end-to-end
+- **Expected:** Confirmation page with order number, track and continue shopping links
+- **Actual:** "Order Placed Successfully!" displayed. Order number shown (non-empty string). "Track Order" and "Continue Shopping" buttons visible.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-006-step-1-confirmation-page.png`
+  - `test-results/screenshots/E2E-006-step-2-order-number-visible.png`
+  - `test-results/screenshots/E2E-006-step-3-confirmation-complete.png`
 
 ---
 
-## TC-03: Order Placement (3 tests)
+## Phase 2 - Staff/Admin Happy Paths
 
-### TC-03.1: Complete order — catalog to confirmation
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Name: "E2E Test Customer", Phone: "9876543210", Address: "42 MG Road, Sector 15, Bangalore", Pincode: "560001" |
-| **Expected** | Full flow: browse → add to cart → fill form → review → confirm → order number shown |
-| **Actual** | Order placed successfully. Confirmation page shows order number. Cart cleared. |
-| **Screenshots** | `03-01-step1-catalog.png`, `03-01-step2-products-added.png`, `03-01-step3-cart-open.png`, `03-01-step4-checkout-form.png`, `03-01-step5-form-filled.png`, `03-01-step6-order-review.png`, `03-01-step7-order-confirmation.png` |
+### E2E-008: Staff login
+- **Status:** PASS
+- **Input:** Username: "staff", Password: "admin123"
+- **Expected:** Staff logs in and sees dashboard with Orders link
+- **Actual:** Login successful. Dashboard loads with Orders navigation link visible.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-008-step-1-login-page.png`
+  - `test-results/screenshots/E2E-008-step-2-credentials-entered.png`
+  - `test-results/screenshots/E2E-008-step-3-staff-dashboard.png`
+  - `test-results/screenshots/E2E-008-step-4-staff-dashboard-verified.png`
 
-### TC-03.2: Order form validation — empty fields
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | All fields empty, click submit |
-| **Expected** | Validation errors for Name, Phone, Address, Pincode |
-| **Actual** | All 4 required-field errors shown |
-| **Screenshot** | `e2e/screenshots/03-02-validation-errors.png` |
+### E2E-010: Staff views order details
+- **Status:** PASS
+- **Input:** Create order as customer, then login as staff and view order detail
+- **Expected:** Order detail page shows order number, customer info, items, total
+- **Actual:** Staff sees order list with clickable order numbers. Order detail shows customer details, order items, and total amount.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-010-step-1-staff-order-list.png`
+  - `test-results/screenshots/E2E-010-step-2-order-detail.png`
+  - `test-results/screenshots/E2E-010-step-3-order-detail-verified.png`
 
-### TC-03.3: Order form validation — invalid phone/pincode
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Phone: "123", Pincode: "12" |
-| **Expected** | Validation errors for invalid format |
-| **Actual** | Phone and pincode format errors displayed |
-| **Screenshot** | `e2e/screenshots/03-03-invalid-phone-pincode.png` |
+### E2E-011: Staff updates order lifecycle (pending -> confirmed -> dispatched -> delivered)
+- **Status:** PASS
+- **Input:** Create fresh order, login as staff, update status through all transitions
+- **Expected:** Each status transition succeeds, final state is "delivered" with no further transitions
+- **Actual:** Successfully transitioned: pending -> confirmed -> dispatched -> delivered. After delivery, no "Mark as" buttons are shown (no further transitions available).
+- **Screenshots:**
+  - `test-results/screenshots/E2E-011-step-1-order-pending.png`
+  - `test-results/screenshots/E2E-011-step-2-order-confirmed.png`
+  - `test-results/screenshots/E2E-011-step-3-order-dispatched.png`
+  - `test-results/screenshots/E2E-011-step-4-order-delivered.png`
+  - `test-results/screenshots/E2E-011-step-5-lifecycle-complete.png`
 
----
+### E2E-015: Admin login
+- **Status:** PASS
+- **Input:** Username: "admin", Password: "admin123"
+- **Expected:** Admin logs in and sees dashboard with admin-only nav links (Products, Categories, Users)
+- **Actual:** Login successful. Dashboard loads with Products link visible in navigation (admin-only feature).
+- **Screenshots:**
+  - `test-results/screenshots/E2E-015-step-1-login-page.png`
+  - `test-results/screenshots/E2E-015-step-2-credentials-entered.png`
+  - `test-results/screenshots/E2E-015-step-3-admin-dashboard.png`
+  - `test-results/screenshots/E2E-015-step-4-admin-nav-verified.png`
 
-## TC-04: Order Tracking (3 tests)
+### E2E-016: Admin creates new product
+- **Status:** PASS
+- **Input:** Product name: unique timestamp-based name, Description: "A test product created by E2E tests", Price: 99.50, Unit: "piece"
+- **Expected:** Product created and appears in admin product list
+- **Actual:** Add Product modal opens. Form filled and submitted. Product appears in the product table after creation.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-016-step-1-product-list.png`
+  - `test-results/screenshots/E2E-016-step-2-add-product-modal.png`
+  - `test-results/screenshots/E2E-016-step-3-product-form-filled.png`
+  - `test-results/screenshots/E2E-016-step-4-product-created.png`
 
-### TC-04.1: Place order then track by phone number
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Place order with phone "9876500001", then track using same phone |
-| **Expected** | Order appears in tracking results with correct status |
-| **Actual** | Order found. Status and details match. |
-| **Screenshots** | `04-01-step1-order-placed.png`, `04-01-step2-track-page.png`, `04-01-step3-orders-found.png` |
-
-### TC-04.2: Track with invalid phone shows error
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Phone: "123" (invalid) |
-| **Expected** | Validation error |
-| **Actual** | Phone validation error shown |
-| **Screenshot** | `e2e/screenshots/04-02-invalid-phone.png` |
-
-### TC-04.3: Track with unknown phone shows no orders
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Phone: "9999999999" (no orders exist) |
-| **Expected** | "No orders found" message |
-| **Actual** | Empty state message displayed |
-| **Screenshot** | `e2e/screenshots/04-03-no-orders-found.png` |
-
----
-
-## TC-05: Staff Dashboard (6 tests)
-
-### TC-05.1: Staff login and view order list
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Username: "staff", Password: "admin123" |
-| **Expected** | Dashboard loads with order list |
-| **Actual** | Login successful. Order list rendered with orders. |
-| **Screenshots** | `05-01-step1-login-page.png`, `05-01-step2-dashboard-loaded.png` |
-
-### TC-05.2: Admin login and view order list
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Username: "admin", Password: "admin123" |
-| **Expected** | Dashboard loads with admin access |
-| **Actual** | Admin dashboard rendered with management options |
-| **Screenshot** | `e2e/screenshots/05-02-admin-dashboard.png` |
-
-### TC-05.3: View order detail and update status lifecycle
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Click order → Confirm → Dispatch → Deliver |
-| **Expected** | Status transitions: pending → confirmed → dispatched → delivered |
-| **Actual** | All status transitions successful. UI updates after each change. |
-| **Screenshots** | `05-03-step1-order-list.png`, `05-03-step2-order-detail.png`, `05-03-step3-status-confirmed.png`, `05-03-step4-status-dispatched.png`, `05-03-step5-status-delivered.png` |
-
-### TC-05.4: Filter orders by status
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Select "Pending" filter |
-| **Expected** | Only pending orders shown |
-| **Actual** | Filter applied correctly |
-| **Screenshot** | `e2e/screenshots/05-04-filter-pending.png` |
-
-### TC-05.5: Search orders by customer name
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Search for customer name |
-| **Expected** | Matching orders shown |
-| **Actual** | Search filters orders correctly |
-| **Screenshot** | `e2e/screenshots/05-05-search-customer.png` |
-
-### TC-05.6: Invalid login shows error
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Username: "staff", Password: "wrongpass" |
-| **Expected** | Error message, no redirect |
-| **Actual** | "Invalid credentials" error shown. Stays on login page. |
-| **Screenshot** | `e2e/screenshots/05-06-invalid-login.png` |
+### E2E-034: Admin deactivates product -> customer can't see it (is_active regression test)
+- **Status:** PASS
+- **Input:** Create active product, verify visible to customer, deactivate via admin edit, verify hidden from customer
+- **Expected:** Active product visible on customer catalog; deactivated product hidden
+- **Actual:** Created product appears in customer catalog. After unchecking "Active" and updating, customer catalog no longer shows the product (page reload confirmed).
+- **Screenshots:**
+  - `test-results/screenshots/E2E-034-step-1-product-created-active.png`
+  - `test-results/screenshots/E2E-034-step-2-product-visible-customer.png`
+  - `test-results/screenshots/E2E-034-step-3-product-deactivated-form.png`
+  - `test-results/screenshots/E2E-034-step-4-product-deactivated-admin.png`
+  - `test-results/screenshots/E2E-034-step-5-product-hidden-customer.png`
 
 ---
 
-## TC-06: Admin Product Management (3 tests)
+## Phase 3 - Edge Cases & Error Handling
 
-### TC-06.1: View product list in admin
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Login as admin, navigate to /admin/products |
-| **Expected** | Product list with management controls |
-| **Actual** | All products listed with edit/delete options |
-| **Screenshot** | `e2e/screenshots/06-01-admin-product-list.png` |
+### E2E-021: Empty cart submission blocked
+- **Status:** PASS
+- **Input:** Navigate directly to /order/checkout with empty cart
+- **Expected:** User cannot access checkout form with empty cart
+- **Actual:** App redirects away from checkout. "Delivery Details" form and "Review Order" button are not visible. User is blocked from submitting an empty cart.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-021-step-1-catalog-loaded-first.png`
+  - `test-results/screenshots/E2E-021-step-2-after-checkout-redirect.png`
+  - `test-results/screenshots/E2E-021-step-3-checkout-blocked.png`
 
-### TC-06.2: Create a new product
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Name: "E2E Test Product", Price: 99.99, Category: first available |
-| **Expected** | Product created, appears in list |
-| **Actual** | Product created successfully. Visible in admin list. |
-| **Screenshots** | `06-02-step1-add-product-modal.png`, `06-02-step2-form-filled.png`, `06-02-step3-product-created.png` |
+### E2E-022: Invalid phone rejected
+- **Status:** PASS
+- **Input:** Phone: "12345" (5 digits instead of required 10)
+- **Expected:** Validation error "Enter a valid 10-digit phone number"
+- **Actual:** Form submission blocked. Error message "Enter a valid 10-digit phone number" displayed. User remains on checkout page.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-022-step-1-invalid-phone-entered.png`
+  - `test-results/screenshots/E2E-022-step-2-phone-error-shown.png`
 
-### TC-06.3: Edit a product
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Change product name/price |
-| **Expected** | Product updated in list |
-| **Actual** | Edit saved. Updated values reflected. |
-| **Screenshots** | `06-03-edit-product-modal.png`, `06-03-product-updated.png` |
+### E2E-028: Missing required fields show errors
+- **Status:** PASS
+- **Input:** Submit checkout form with all fields empty
+- **Expected:** Validation errors for all 6 required fields
+- **Actual:** All 6 error messages displayed: "Name is required", "Phone is required", "Address is required", "City is required", "State is required", "Pincode is required". User remains on checkout page.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-028-step-1-empty-form.png`
+  - `test-results/screenshots/E2E-028-step-2-validation-errors.png`
+  - `test-results/screenshots/E2E-028-step-3-all-errors-visible.png`
+
+### E2E-029: Wrong credentials rejected
+- **Status:** PASS
+- **Input:** Username: "wronguser", Password: "wrongpass"; then empty fields
+- **Expected:** Error message displayed, user remains on login page
+- **Actual:** Error message matching "invalid/credentials/failed/error" displayed for wrong credentials. "Username and password are required" shown for empty fields. User remains on login page.
+- **Screenshots:**
+  - `test-results/screenshots/E2E-029-step-1-login-page.png`
+  - `test-results/screenshots/E2E-029-step-2-wrong-credentials-submitted.png`
+  - `test-results/screenshots/E2E-029-step-3-error-message-shown.png`
+  - `test-results/screenshots/E2E-029-step-4-empty-fields-error.png`
 
 ---
 
-## TC-07: Full Order Lifecycle — Customer + Staff (2 tests)
+## Bugs Found
 
-### TC-07.1: Complete lifecycle — order → confirm → dispatch → deliver → track
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Customer places order → Staff confirms → dispatches → delivers → Customer tracks and sees "Delivered" |
-| **Expected** | Full lifecycle from customer order to delivered, verified from both customer and staff perspectives |
-| **Actual** | All transitions successful. Customer tracking shows final "Delivered" status. |
-| **Screenshots** | `07-01-step1-order-placed.png`, `07-01-step2-staff-views-order.png`, `07-01-step3-confirmed.png`, `07-01-step4-dispatched.png`, `07-01-step5-delivered.png`, `07-01-step6-customer-tracks-delivered.png` |
-
-### TC-07.2: Cancel order flow
-| Field | Detail |
-|---|---|
-| **Status** | ✅ PASS |
-| **Input** | Place order → Staff cancels it |
-| **Expected** | Order status changes to cancelled |
-| **Actual** | Cancellation successful. Status reflected in dashboard. |
-| **Screenshots** | `07-02-step1-order-placed.png`, `07-02-step2-order-cancelled.png` |
+No bugs found. All 16 test cases pass against the live application.
 
 ---
 
 ## Summary
 
-| Suite | Tests | Pass | Fail | Duration |
-|-------|-------|------|------|----------|
-| TC-01: Product Catalog | 4 | 4 | 0 | ~3s |
-| TC-02: Cart Management | 5 | 5 | 0 | ~5s |
-| TC-03: Order Placement | 3 | 3 | 0 | ~7s |
-| TC-04: Order Tracking | 3 | 3 | 0 | ~7s |
-| TC-05: Staff Dashboard | 6 | 6 | 0 | ~12s |
-| TC-06: Admin Product Mgmt | 3 | 3 | 0 | ~4s |
-| TC-07: Full Lifecycle | 2 | 2 | 0 | ~16s |
-| **Total** | **26** | **26** | **0** | **~31s** |
+| Phase | Tests | Passed | Failed |
+|-------|-------|--------|--------|
+| Phase 1 - Customer Happy Path | 6 | 6 | 0 |
+| Phase 2 - Staff/Admin Paths | 6 | 6 | 0 |
+| Phase 3 - Edge Cases | 4 | 4 | 0 |
+| **Total** | **16** | **16** | **0** |
 
-## Screenshot Index
-
-All 47 screenshots saved at: `e2e/screenshots/`
-
-| Screenshot | Test | What It Shows |
-|---|---|---|
-| `01-01-product-catalog-loaded.png` | TC-01.1 | Full product catalog with 15 products |
-| `01-02-filtered-by-fruits.png` | TC-01.2 | Catalog filtered to Fruits category |
-| `01-03-search-milk.png` | TC-01.3 | Search results for "Milk" |
-| `01-04-product-added-to-cart.png` | TC-01.4 | Cart badge after adding product |
-| `02-01-cart-sidebar-open.png` | TC-02.1 | Cart sidebar with items |
-| `02-02-quantity-increased.png` | TC-02.2 | Cart after quantity increase |
-| `02-03-quantity-decreased.png` | TC-02.3 | Cart after quantity decrease |
-| `02-04-cart-empty-after-remove.png` | TC-02.4 | Empty cart state |
-| `02-05-checkout-page.png` | TC-02.5 | Checkout form page |
-| `03-01-step1-catalog.png` | TC-03.1 | Browse catalog (step 1) |
-| `03-01-step2-products-added.png` | TC-03.1 | Products added to cart (step 2) |
-| `03-01-step3-cart-open.png` | TC-03.1 | Cart open with items (step 3) |
-| `03-01-step4-checkout-form.png` | TC-03.1 | Checkout form empty (step 4) |
-| `03-01-step5-form-filled.png` | TC-03.1 | Form filled with customer data (step 5) |
-| `03-01-step6-order-review.png` | TC-03.1 | Order review page (step 6) |
-| `03-01-step7-order-confirmation.png` | TC-03.1 | Order confirmation with number (step 7) |
-| `03-02-validation-errors.png` | TC-03.2 | All required field errors |
-| `03-03-invalid-phone-pincode.png` | TC-03.3 | Phone/pincode format errors |
-| `04-01-step1-order-placed.png` | TC-04.1 | Order placed for tracking |
-| `04-01-step2-track-page.png` | TC-04.1 | Track page with phone input |
-| `04-01-step3-orders-found.png` | TC-04.1 | Orders found by phone |
-| `04-02-invalid-phone.png` | TC-04.2 | Invalid phone error on track |
-| `04-03-no-orders-found.png` | TC-04.3 | No orders found state |
-| `05-01-step1-login-page.png` | TC-05.1 | Staff login page |
-| `05-01-step2-dashboard-loaded.png` | TC-05.1 | Staff dashboard after login |
-| `05-02-admin-dashboard.png` | TC-05.2 | Admin dashboard view |
-| `05-03-step1-order-list.png` | TC-05.3 | Order list in dashboard |
-| `05-03-step2-order-detail.png` | TC-05.3 | Order detail view |
-| `05-03-step3-status-confirmed.png` | TC-05.3 | Status: Confirmed |
-| `05-03-step4-status-dispatched.png` | TC-05.3 | Status: Dispatched |
-| `05-03-step5-status-delivered.png` | TC-05.3 | Status: Delivered |
-| `05-04-filter-pending.png` | TC-05.4 | Orders filtered by Pending |
-| `05-05-search-customer.png` | TC-05.5 | Search by customer name |
-| `05-06-invalid-login.png` | TC-05.6 | Invalid credentials error |
-| `06-01-admin-product-list.png` | TC-06.1 | Admin product management |
-| `06-02-step1-add-product-modal.png` | TC-06.2 | Add product modal |
-| `06-02-step2-form-filled.png` | TC-06.2 | Product form filled |
-| `06-02-step3-product-created.png` | TC-06.2 | Product created in list |
-| `06-03-edit-product-modal.png` | TC-06.3 | Edit product modal |
-| `06-03-product-updated.png` | TC-06.3 | Product updated |
-| `07-01-step1-order-placed.png` | TC-07.1 | Customer order placed |
-| `07-01-step2-staff-views-order.png` | TC-07.1 | Staff views new order |
-| `07-01-step3-confirmed.png` | TC-07.1 | Staff confirms order |
-| `07-01-step4-dispatched.png` | TC-07.1 | Staff dispatches order |
-| `07-01-step5-delivered.png` | TC-07.1 | Staff delivers order |
-| `07-01-step6-customer-tracks-delivered.png` | TC-07.1 | Customer sees Delivered |
-| `07-02-step1-order-placed.png` | TC-07.2 | Order placed for cancellation |
-| `07-02-step2-order-cancelled.png` | TC-07.2 | Order cancelled |
-
-## Bugs Found
-
-None — all 26 tests pass on first run (after fixing the `is_active` field mismatch from the earlier session).
-
-## Notes
-
-- TC-07.1 is the highest-value test: it exercises the **complete lifecycle** across two user roles (customer places order → staff confirms → dispatches → delivers → customer tracks and sees "Delivered"). This is the test that would have caught the `is_active` bug.
-- All screenshots are captured at key state transitions, not on every click — keeping the evidence focused and meaningful.
-- Cart is client-side (localStorage/React state) — no DB verification needed for cart tests.
-- Order placement tests verify the order exists in MySQL after submission.
+All tests run against real browser (Chromium), real API (localhost:8090), and real database (MySQL orderdb). Zero mocks, zero stubs. 55 screenshots captured at key state transitions.

@@ -2,7 +2,7 @@ package ws
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"sync"
 
@@ -82,7 +82,7 @@ func (h *Hub) Run() {
 func (h *Hub) Broadcast(msg Message) {
 	data, err := json.Marshal(msg)
 	if err != nil {
-		log.Printf("ws broadcast marshal error: %v", err)
+		slog.Error("ws broadcast marshal error", "error", err)
 		return
 	}
 	h.broadcast <- data
@@ -97,7 +97,7 @@ func (h *Hub) ClientCount() int {
 func (h *Hub) HandleWS(w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("ws upgrade error: %v", err)
+		slog.Error("ws upgrade error", "error", err)
 		return
 	}
 

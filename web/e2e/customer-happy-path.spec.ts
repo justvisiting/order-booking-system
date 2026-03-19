@@ -38,7 +38,7 @@ test.describe('Customer Happy Path', () => {
     await screenshot(page, 'E2E-001', 3, 'filtered-by-category')
 
     // Verify filter is applied - the clicked button should be active (blue)
-    await expect(categoryButtons.nth(1)).toHaveClass(/bg-blue-600/)
+    await expect(categoryButtons.nth(1)).toHaveAttribute('aria-pressed', 'true')
 
     // Click "All" to reset
     await allButton.click()
@@ -54,7 +54,7 @@ test.describe('Customer Happy Path', () => {
 
     // Get a product name to search for
     const firstProductName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     expect(firstProductName).toBeTruthy()
@@ -90,7 +90,7 @@ test.describe('Customer Happy Path', () => {
 
     // Get first product name
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
 
@@ -124,7 +124,7 @@ test.describe('Customer Happy Path', () => {
 
     // Add a product and proceed to checkout
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -153,7 +153,7 @@ test.describe('Customer Happy Path', () => {
 
     // Add product
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -175,10 +175,11 @@ test.describe('Customer Happy Path', () => {
     await expect(page.getByText(testCustomer.name)).toBeVisible()
     await expect(page.getByText(testCustomer.phone)).toBeVisible()
     await expect(page.getByText(testAddress.address)).toBeVisible()
-    await expect(page.getByText(productName!)).toBeVisible()
+    // Use .first() to avoid strict mode when product name appears in both review and cart sidebar
+    await expect(page.getByText(productName!).first()).toBeVisible()
 
     // Verify total is shown
-    await expect(page.getByText('Total')).toBeVisible()
+    await expect(page.getByText('Total').first()).toBeVisible()
     await screenshot(page, 'E2E-005', 2, 'review-verified')
 
     // Submit order
@@ -195,7 +196,7 @@ test.describe('Customer Happy Path', () => {
 
     // Full flow: add → checkout → fill → review → place
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -213,7 +214,7 @@ test.describe('Customer Happy Path', () => {
 
     // Verify order number is displayed
     await expect(page.getByText('Order Number')).toBeVisible()
-    const orderNumber = await page.locator('.text-2xl.font-bold.text-gray-900').last().textContent()
+    const orderNumber = await page.locator('.text-2xl.font-bold.text-neutral-900').last().textContent()
     expect(orderNumber).toBeTruthy()
     expect(orderNumber!.length).toBeGreaterThan(0)
     await screenshot(page, 'E2E-006', 2, 'order-number-visible')

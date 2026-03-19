@@ -1,9 +1,13 @@
 package handler
 
 import (
+	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"strconv"
+
+	"order-system/internal/middleware"
 )
 
 func writeJSON(w http.ResponseWriter, code int, data interface{}) {
@@ -14,6 +18,12 @@ func writeJSON(w http.ResponseWriter, code int, data interface{}) {
 
 func writeError(w http.ResponseWriter, code int, message string) {
 	writeJSON(w, code, map[string]string{"error": message})
+}
+
+func logError(ctx context.Context, msg string, err error, extra ...any) {
+	args := []any{"error", err, "request_id", middleware.GetRequestID(ctx)}
+	args = append(args, extra...)
+	slog.Error(msg, args...)
 }
 
 func parseID(s string) (int64, error) {

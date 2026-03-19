@@ -13,9 +13,9 @@ export function toast(type: ToastMessage['type'], message: string) {
 }
 
 const typeClasses: Record<string, string> = {
-  success: 'bg-green-50 text-green-800 border-green-200',
-  error: 'bg-red-50 text-red-800 border-red-200',
-  info: 'bg-blue-50 text-blue-800 border-blue-200',
+  success: 'bg-success-50 text-success-800 border-success-200',
+  error: 'bg-error-50 text-error-800 border-error-200',
+  info: 'bg-info-50 text-info-800 border-info-200',
 }
 
 export function ToastContainer() {
@@ -39,10 +39,11 @@ export function ToastContainer() {
   if (toasts.length === 0) return null
 
   return (
-    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm">
+    <div className="fixed top-4 right-4 z-[100] flex flex-col gap-2 max-w-sm" aria-live="polite">
       {toasts.map((t) => (
         <div
           key={t.id}
+          role="alert"
           className={`rounded-lg border px-4 py-3 text-sm shadow-md animate-[slideIn_0.2s_ease-out] ${typeClasses[t.type]}`}
         >
           {t.message}

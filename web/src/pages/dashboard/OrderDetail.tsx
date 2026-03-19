@@ -16,11 +16,11 @@ const statusTransitions: Record<OrderStatus, OrderStatus[]> = {
   cancelled: [],
 }
 
-const statusButtonStyles: Record<string, string> = {
-  confirmed: 'bg-blue-600 text-white hover:bg-blue-700',
-  dispatched: 'bg-purple-600 text-white hover:bg-purple-700',
-  delivered: 'bg-green-600 text-white hover:bg-green-700',
-  cancelled: 'bg-red-600 text-white hover:bg-red-700',
+const statusButtonVariant: Record<string, 'primary' | 'secondary' | 'danger' | 'ghost'> = {
+  confirmed: 'primary',
+  dispatched: 'primary',
+  delivered: 'primary',
+  cancelled: 'danger',
 }
 
 export function OrderDetail() {
@@ -66,11 +66,11 @@ export function OrderDetail() {
         <div>
           <Link
             to="/dashboard"
-            className="text-sm text-blue-600 hover:text-blue-800 mb-1 inline-block"
+            className="text-sm text-brand-600 hover:text-brand-800 mb-1 inline-block"
           >
             &larr; Back to Orders
           </Link>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-neutral-900">
             Order #{order.order_number}
           </h1>
         </div>
@@ -86,37 +86,38 @@ export function OrderDetail() {
 
       <div className="space-y-4">
         {nextStatuses.length > 0 && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-            <h2 className="text-sm font-semibold text-gray-700 mb-3">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-4">
+            <h2 className="text-sm font-semibold text-neutral-700 mb-3">
               Update Status
             </h2>
             <div className="flex gap-2 flex-wrap">
               {nextStatuses.map((status) => (
-                <button
+                <Button
                   key={status}
+                  variant={statusButtonVariant[status] || 'primary'}
+                  size="sm"
                   onClick={() => handleStatusUpdate(status)}
                   disabled={updateStatus.isPending}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 ${statusButtonStyles[status]}`}
                 >
                   Mark as {status.charAt(0).toUpperCase() + status.slice(1)}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">
             Customer Details
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             <div>
-              <p className="text-gray-500">Name</p>
-              <p className="font-medium text-gray-900">{order.customer_name}</p>
+              <p className="text-neutral-500">Name</p>
+              <p className="font-medium text-neutral-900">{order.customer_name}</p>
             </div>
             <div>
-              <p className="text-gray-500">Phone</p>
-              <p className="font-medium text-gray-900">
+              <p className="text-neutral-500">Phone</p>
+              <p className="font-medium text-neutral-900">
                 {formatPhone(order.customer_phone)}
               </p>
             </div>
@@ -124,11 +125,11 @@ export function OrderDetail() {
         </div>
 
         {order.delivery_address && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-4">
               Delivery Address
             </h2>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-neutral-600">
               <p>{order.delivery_address.address}</p>
               <p>
                 {order.delivery_address.city}, {order.delivery_address.state} -{' '}
@@ -138,21 +139,21 @@ export function OrderDetail() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">
             Order Items
           </h2>
           <div className="divide-y">
             {order.items.map((item, idx) => (
               <div key={idx} className="flex justify-between py-3 text-sm">
                 <div>
-                  <p className="font-medium text-gray-900">{item.product_name}</p>
-                  <p className="text-gray-500">
+                  <p className="font-medium text-neutral-900">{item.product_name}</p>
+                  <p className="text-neutral-500">
                     {item.quantity} x {formatCurrency(item.unit_price)}
                   </p>
                 </div>
-                <p className="font-semibold text-gray-900">
-                  {formatCurrency(item.total_price)}
+                <p className="font-semibold text-neutral-900">
+                  {formatCurrency(item.total_price ?? item.unit_price * item.quantity)}
                 </p>
               </div>
             ))}
@@ -164,15 +165,15 @@ export function OrderDetail() {
         </div>
 
         {order.notes && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Notes</h2>
-            <p className="text-sm text-gray-600">{order.notes}</p>
+          <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+            <h2 className="text-lg font-semibold text-neutral-900 mb-2">Notes</h2>
+            <p className="text-sm text-neutral-600">{order.notes}</p>
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Timeline</h2>
-          <div className="text-sm text-gray-600 space-y-2">
+        <div className="bg-white rounded-xl shadow-sm border border-neutral-200 p-6">
+          <h2 className="text-lg font-semibold text-neutral-900 mb-4">Timeline</h2>
+          <div className="text-sm text-neutral-600 space-y-2">
             <div className="flex justify-between">
               <span>Created</span>
               <span>{formatDate(order.created_at)}</span>

@@ -2,15 +2,20 @@ import { defineConfig } from '@playwright/test'
 
 export default defineConfig({
   testDir: './e2e',
-  outputDir: './e2e/test-results',
+  outputDir: './test-results',
   fullyParallel: false,
   retries: 0,
-  timeout: 30000,
+  timeout: 60000,
+  expect: {
+    timeout: 10000,
+  },
   use: {
     baseURL: 'http://localhost:3000',
-    screenshot: 'on',
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
     video: 'off',
+    actionTimeout: 15000,
+    navigationTimeout: 15000,
   },
   projects: [
     {

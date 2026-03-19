@@ -34,7 +34,7 @@ test.describe('Staff Operations', () => {
     await expect(page.getByText('Our Products')).toBeVisible()
 
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -75,7 +75,7 @@ test.describe('Staff Operations', () => {
     await expect(page.getByText('Our Products')).toBeVisible()
 
     const productName = await page
-      .locator('.bg-white.rounded-xl .font-semibold.text-gray-900')
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
       .first()
       .textContent()
     await addProductToCart(page, productName!)
@@ -89,7 +89,7 @@ test.describe('Staff Operations', () => {
     await expect(page.getByText('Order Placed Successfully!')).toBeVisible({ timeout: 15000 })
 
     // Get the order number
-    const orderNumber = await page.locator('.text-2xl.font-bold.text-gray-900').last().textContent()
+    const orderNumber = await page.locator('.text-2xl.font-bold.text-neutral-900').last().textContent()
 
     // Login as staff
     await loginAsStaff(page)

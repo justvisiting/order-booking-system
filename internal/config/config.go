@@ -2,7 +2,9 @@ package config
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
+	"strings"
 	"time"
 
 	"gopkg.in/yaml.v3"
@@ -13,6 +15,11 @@ type Config struct {
 	Database DatabaseConfig `yaml:"database"`
 	JWT      JWTConfig      `yaml:"jwt"`
 	CORS     CORSConfig     `yaml:"cors"`
+	Log      LogConfig      `yaml:"log"`
+}
+
+type LogConfig struct {
+	Level string `yaml:"level"`
 }
 
 type ServerConfig struct {
@@ -81,6 +88,26 @@ func Load(path string) (*Config, error) {
 	if v := os.Getenv("SERVER_PORT"); v != "" {
 		fmt.Sscanf(v, "%d", &cfg.Server.Port)
 	}
+	if v := os.Getenv("LOG_LEVEL"); v != "" {
+		cfg.Log.Level = v
+	}
+
+	if cfg.Log.Level == "" {
+		cfg.Log.Level = "info"
+	}
 
 	return cfg, nil
+}
+
+func (l LogConfig) SlogLevel() slog.Level {
+	switch strings.ToLower(l.Level) {
+	case "debug":
+		return slog.LevelDebug
+	case "warn", "warning":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		return slog.LevelInfo
+	}
 }

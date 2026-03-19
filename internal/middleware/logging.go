@@ -1,11 +1,39 @@
 package middleware
 
 import (
+	"context"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
-	"log"
+	"log/slog"
 	"net/http"
 	"time"
 )
+
+type requestIDKey struct{}
+
+func GetRequestID(ctx context.Context) string {
+	v, _ := ctx.Value(requestIDKey{}).(string)
+	return v
+}
+
+func generateRequestID() string {
+	b := make([]byte, 8)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+func RequestID(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		reqID := r.Header.Get("X-Request-ID")
+		if reqID == "" {
+			reqID = generateRequestID()
+		}
+		ctx := context.WithValue(r.Context(), requestIDKey{}, reqID)
+		w.Header().Set("X-Request-ID", reqID)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
 
 type statusWriter struct {
 	http.ResponseWriter
@@ -24,7 +52,16 @@ func Logging(next http.Handler) http.Handler {
 
 		next.ServeHTTP(sw, r)
 
-		log.Printf("%s %s %d %s", r.Method, r.URL.Path, sw.statusCode, time.Since(start))
+		duration := time.Since(start)
+		reqID := GetRequestID(r.Context())
+
+		slog.Info("http request",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", sw.statusCode,
+			"duration_ms", duration.Milliseconds(),
+			"request_id", reqID,
+		)
 	})
 }
 
