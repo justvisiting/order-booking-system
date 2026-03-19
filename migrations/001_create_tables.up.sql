@@ -79,4 +79,4 @@ CREATE TABLE IF NOT EXISTS order_status_log (
 
 -- Seed a default admin user (password: admin123)
 INSERT INTO users (username, password_hash, role) VALUES
-    ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'admin');
+    ('admin', '$2a$10$35YZFm6W8DdgXQdT3XvEzumgQtdnNfa6V0EPkeo7UxF4HZaGhfgDq', 'admin');

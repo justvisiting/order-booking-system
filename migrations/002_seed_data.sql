@@ -24,6 +24,7 @@ INSERT INTO products (category_id, name, description, price, unit) VALUES
     (5, 'Samosa', 'Crispy samosa', 15.00, 'piece'),
     (5, 'Namkeen', 'Mixed namkeen 200g', 45.00, 'packet');
 
--- Seed a staff user (password: staff123)
+-- Seed staff user (password: admin123)
+-- Admin user already seeded in 001_create_tables.up.sql
 INSERT INTO users (username, password_hash, role) VALUES
-    ('staff', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', 'staff');
+    ('staff', '$2a$10$35YZFm6W8DdgXQdT3XvEzumgQtdnNfa6V0EPkeo7UxF4HZaGhfgDq', 'staff');
