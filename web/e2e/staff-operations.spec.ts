@@ -6,6 +6,7 @@ import {
   fillOrderForm,
   screenshot,
   testCustomer,
+  testAddress,
 } from './helpers'
 
 test.describe('Staff Operations', () => {
@@ -128,5 +129,181 @@ test.describe('Staff Operations', () => {
     // Verify no more status transitions available
     await expect(page.getByRole('button', { name: /Mark as/ })).not.toBeVisible()
     await screenshot(page, 'E2E-011', 5, 'lifecycle-complete')
+  })
+
+  test('E2E-009: Staff filters and searches orders', async ({ page }) => {
+    // First create an order so there's data to filter
+    await page.goto('/order')
+    await expect(page.getByText('Our Products')).toBeVisible()
+
+    const productName = await page
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
+      .first()
+      .textContent()
+    await addProductToCart(page, productName!)
+    await openCart(page)
+    await page.getByRole('button', { name: /Checkout/i }).click()
+    await expect(page.getByText('Delivery Details')).toBeVisible()
+    await fillOrderForm(page)
+    await page.getByRole('button', { name: 'Review Order' }).click()
+    await expect(page.getByText('Review Your Order')).toBeVisible()
+    await page.getByRole('button', { name: 'Place Order' }).click()
+    await expect(page.getByText('Order Placed Successfully!')).toBeVisible({ timeout: 15000 })
+
+    // Get the order number for searching
+    const orderNumber = await page.locator('.text-2xl.font-bold.text-neutral-900').last().textContent()
+
+    // Login as staff
+    await loginAsStaff(page)
+    await screenshot(page, 'E2E-009', 1, 'staff-dashboard')
+
+    // Test search by order number
+    const searchInput = page.getByPlaceholder('Search by order number, customer...')
+    await expect(searchInput).toBeVisible()
+    if (orderNumber) {
+      await searchInput.fill(orderNumber)
+      await page.waitForTimeout(500)
+      await screenshot(page, 'E2E-009', 2, 'search-by-order-number')
+
+      // Verify the searched order appears in results
+      await expect(page.locator('table tbody tr').first()).toBeVisible()
+      await expect(page.locator('table').first().getByText(orderNumber)).toBeVisible()
+    }
+
+    // Clear search
+    await searchInput.fill('')
+    await page.waitForTimeout(500)
+
+    // Test search by customer name
+    await searchInput.fill(testCustomer.name)
+    await page.waitForTimeout(500)
+    await screenshot(page, 'E2E-009', 3, 'search-by-customer-name')
+    await expect(page.locator('table tbody tr').first()).toBeVisible()
+
+    // Clear search
+    await searchInput.fill('')
+    await page.waitForTimeout(500)
+
+    // Test filter by status
+    const statusFilter = page.locator('select[aria-label="Filter by status"]')
+    await expect(statusFilter).toBeVisible()
+    await statusFilter.selectOption('pending')
+    await page.waitForTimeout(500)
+    await screenshot(page, 'E2E-009', 4, 'filtered-by-pending')
+
+    // Verify all visible orders have pending status
+    const rows = page.locator('table tbody tr')
+    const rowCount = await rows.count()
+    if (rowCount > 0) {
+      for (let i = 0; i < Math.min(rowCount, 5); i++) {
+        await expect(rows.nth(i).getByText(/pending/i)).toBeVisible()
+      }
+    }
+
+    // Reset filter to All
+    await statusFilter.selectOption('')
+    await page.waitForTimeout(500)
+    await screenshot(page, 'E2E-009', 5, 'filter-reset')
+  })
+
+  test('E2E-012: Staff views order with multiple items', async ({ page }) => {
+    // Create an order with multiple products
+    await page.goto('/order')
+    await expect(page.getByText('Our Products')).toBeVisible()
+
+    // Get first two product names
+    const productNames = page.locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
+    const product1 = await productNames.nth(0).textContent()
+    const product2 = await productNames.nth(1).textContent()
+    expect(product1).toBeTruthy()
+    expect(product2).toBeTruthy()
+
+    // Add both products to cart
+    await addProductToCart(page, product1!)
+    await addProductToCart(page, product2!)
+
+    // Checkout
+    await openCart(page)
+    await page.getByRole('button', { name: /Checkout/i }).click()
+    await expect(page.getByText('Delivery Details')).toBeVisible()
+    await fillOrderForm(page)
+    await page.getByRole('button', { name: 'Review Order' }).click()
+    await expect(page.getByText('Review Your Order')).toBeVisible()
+    await page.getByRole('button', { name: 'Place Order' }).click()
+    await expect(page.getByText('Order Placed Successfully!')).toBeVisible({ timeout: 15000 })
+
+    const orderNumber = await page.locator('.text-2xl.font-bold.text-neutral-900').last().textContent()
+
+    // Login as staff and find the order
+    await loginAsStaff(page)
+
+    if (orderNumber) {
+      await page.getByPlaceholder('Search by order number, customer...').fill(orderNumber)
+      await page.waitForTimeout(500)
+    }
+
+    const orderLink = page.locator('table tbody tr a').first()
+    await expect(orderLink).toBeVisible()
+    await orderLink.click()
+    await expect(page.getByText(/Order #/)).toBeVisible()
+    await screenshot(page, 'E2E-012', 1, 'order-detail-multi-items')
+
+    // Verify both products are listed in order items
+    await expect(page.getByText('Order Items')).toBeVisible()
+    await expect(page.getByText(product1!).first()).toBeVisible()
+    await expect(page.getByText(product2!).first()).toBeVisible()
+    await screenshot(page, 'E2E-012', 2, 'both-items-visible')
+
+    // Verify total is displayed
+    await expect(page.getByText('Total').first()).toBeVisible()
+    await screenshot(page, 'E2E-012', 3, 'total-verified')
+  })
+
+  test('E2E-013: Staff sees customer delivery info', async ({ page }) => {
+    // Create an order with specific delivery info
+    await page.goto('/order')
+    await expect(page.getByText('Our Products')).toBeVisible()
+
+    const productName = await page
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
+      .first()
+      .textContent()
+    await addProductToCart(page, productName!)
+    await openCart(page)
+    await page.getByRole('button', { name: /Checkout/i }).click()
+    await expect(page.getByText('Delivery Details')).toBeVisible()
+    await fillOrderForm(page)
+    await page.getByRole('button', { name: 'Review Order' }).click()
+    await expect(page.getByText('Review Your Order')).toBeVisible()
+    await page.getByRole('button', { name: 'Place Order' }).click()
+    await expect(page.getByText('Order Placed Successfully!')).toBeVisible({ timeout: 15000 })
+
+    const orderNumber = await page.locator('.text-2xl.font-bold.text-neutral-900').last().textContent()
+
+    // Login as staff and view the order
+    await loginAsStaff(page)
+
+    if (orderNumber) {
+      await page.getByPlaceholder('Search by order number, customer...').fill(orderNumber)
+      await page.waitForTimeout(500)
+    }
+
+    const orderLink = page.locator('table tbody tr a').first()
+    await expect(orderLink).toBeVisible()
+    await orderLink.click()
+    await expect(page.getByText(/Order #/)).toBeVisible()
+    await screenshot(page, 'E2E-013', 1, 'order-detail-page')
+
+    // Verify customer details section
+    await expect(page.getByText('Customer Details')).toBeVisible()
+    await expect(page.getByText(testCustomer.name)).toBeVisible()
+    await screenshot(page, 'E2E-013', 2, 'customer-details-visible')
+
+    // Verify delivery address section
+    await expect(page.getByText(testAddress.address)).toBeVisible()
+    await expect(page.getByText(testAddress.city)).toBeVisible()
+    await expect(page.getByText(testAddress.state)).toBeVisible()
+    await expect(page.getByText(testAddress.pincode)).toBeVisible()
+    await screenshot(page, 'E2E-013', 3, 'delivery-info-verified')
   })
 })

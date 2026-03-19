@@ -224,4 +224,45 @@ test.describe('Customer Happy Path', () => {
     await expect(page.getByRole('button', { name: 'Continue Shopping' })).toBeVisible()
     await screenshot(page, 'E2E-006', 3, 'confirmation-complete')
   })
+
+  test('E2E-007: Track order by phone number', async ({ page }) => {
+    // First place an order so we have something to track
+    await page.goto('/order')
+    await expect(page.getByText('Our Products')).toBeVisible()
+
+    const productName = await page
+      .locator('.bg-white.rounded-xl .font-semibold.text-neutral-900')
+      .first()
+      .textContent()
+    await addProductToCart(page, productName!)
+    await openCart(page)
+    await page.getByRole('button', { name: /Checkout/i }).click()
+    await expect(page.getByText('Delivery Details')).toBeVisible()
+    await fillOrderForm(page)
+    await page.getByRole('button', { name: 'Review Order' }).click()
+    await expect(page.getByText('Review Your Order')).toBeVisible()
+    await page.getByRole('button', { name: 'Place Order' }).click()
+    await expect(page.getByText('Order Placed Successfully!')).toBeVisible({ timeout: 15000 })
+    await screenshot(page, 'E2E-007', 1, 'order-placed')
+
+    // Navigate to order tracking page
+    await page.getByRole('button', { name: 'Track Order' }).click()
+    await page.waitForTimeout(500)
+    await screenshot(page, 'E2E-007', 2, 'track-page-loaded')
+
+    // Enter phone number to look up orders
+    const phoneInput = page.getByPlaceholder('Enter your 10-digit phone number')
+    await expect(phoneInput).toBeVisible()
+    await phoneInput.fill(testCustomer.phone)
+    await page.getByRole('button', { name: 'Search' }).click()
+    await page.waitForTimeout(2000)
+    await screenshot(page, 'E2E-007', 3, 'order-results')
+
+    // Verify order results are displayed
+    await expect(page.getByText(/Order #/).first()).toBeVisible({ timeout: 10000 })
+
+    // Verify status is shown (should be "pending" for a freshly placed order)
+    await expect(page.getByText(/pending/i).first()).toBeVisible()
+    await screenshot(page, 'E2E-007', 4, 'order-status-visible')
+  })
 })
